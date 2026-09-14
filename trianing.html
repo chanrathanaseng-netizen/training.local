@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Ubuntu Linux Master - Interactive command line learning platform">
+<title>Ubuntu Linux Master</title>
+<style>
+:root{
+  --bg:#080b10;--panel:#0e131b;--panel2:#111923;--border:#263241;
+  --text:#e8eef5;--muted:#8c9aaa;--green:#66e36d;--orange:#ff9f43;
+  --red:#ff6b6b;--blue:#64b5f6;--purple:#b892ff;--shadow:0 12px 35px rgba(0,0,0,.28)
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:radial-gradient(circle at 15% 0%,#14201b 0,#080b10 34%),var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+button,input{font:inherit}
+button{cursor:pointer}
+.app{display:flex;min-height:100vh}
+.sidebar{width:270px;position:fixed;inset:0 auto 0 0;background:rgba(8,11,16,.96);border-right:1px solid var(--border);padding:20px 14px;z-index:20;overflow:auto}
+.brand{display:flex;align-items:center;gap:12px;padding:8px 10px 22px}
+.logo{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#e95420,#8b2f16);display:grid;place-items:center;font-size:22px;font-weight:800;box-shadow:0 8px 25px rgba(233,84,32,.25)}
+.brand h1{font-size:17px;margin:0}.brand small{color:var(--muted)}
+.nav-title{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:#627184;padding:12px 11px 7px}
+.nav button{width:100%;border:0;background:transparent;color:#aeb9c7;text-align:left;padding:11px 12px;border-radius:9px;margin:2px 0;display:flex;gap:11px;align-items:center}
+.nav button:hover,.nav button.active{background:#151e28;color:white}
+.nav button.active{box-shadow:inset 3px 0 var(--green)}
+.progress-mini{margin:18px 8px;padding:13px;background:var(--panel);border:1px solid var(--border);border-radius:12px}
+.progress-row{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:8px}
+.bar{height:7px;background:#202a35;border-radius:99px;overflow:hidden}.bar>span{display:block;height:100%;background:linear-gradient(90deg,var(--green),#a8f0ad);border-radius:99px;transition:.3s}
+.main{margin-left:270px;width:calc(100% - 270px);padding:28px;max-width:1600px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:28px}
+.mobile-menu{display:none}
+.search{display:flex;align-items:center;gap:9px;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:0 13px;max-width:470px;flex:1}
+.search input{width:100%;background:none;border:0;outline:0;color:white;padding:11px}
+.kbd{font-size:11px;border:1px solid #394654;padding:2px 6px;border-radius:5px;color:#778697}
+.top-actions{display:flex;gap:8px}.icon-btn{border:1px solid var(--border);background:var(--panel);color:#cbd5df;border-radius:9px;padding:10px 12px}
+.hero{display:grid;grid-template-columns:1.5fr .8fr;gap:18px;margin-bottom:22px}
+.card{background:linear-gradient(180deg,rgba(17,25,35,.95),rgba(12,17,24,.95));border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow)}
+.hero-card{padding:30px;position:relative;overflow:hidden}
+.hero-card:after{content:"$";position:absolute;right:30px;bottom:-45px;font:900 210px monospace;color:rgba(102,227,109,.045)}
+.eyebrow{color:var(--green);font-weight:700;letter-spacing:.5px}
+h2{font-size:28px;margin:8px 0}.hero p{color:var(--muted);max-width:700px;line-height:1.7}
+.btn{border:1px solid var(--border);border-radius:9px;padding:10px 15px;background:#151d27;color:white}
+.btn.primary{background:var(--green);color:#071008;border-color:var(--green);font-weight:800}.btn:hover{filter:brightness(1.08)}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:18px}
+.stat{padding:17px;border:1px solid var(--border);border-radius:12px;background:#0b1118}.stat b{font-size:25px;display:block}.stat span{font-size:12px;color:var(--muted)}
+.section{margin:28px 0}.section-head{display:flex;justify-content:space-between;align-items:end;gap:15px;margin-bottom:14px}.section-head h3{margin:0;font-size:21px}.section-head p{margin:5px 0 0;color:var(--muted);font-size:13px}
+.levels{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.level{padding:17px;min-height:150px;position:relative;overflow:hidden;cursor:pointer;transition:.2s}
+.level:hover{transform:translateY(-2px);border-color:#3b4b5c}.level-num{color:var(--green);font-family:monospace;font-size:12px}.level h4{margin:9px 0 6px}.level p{font-size:12px;color:var(--muted);line-height:1.5}.lock{position:absolute;right:14px;top:14px;color:#617080}
+.commands{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.command{padding:17px}.command code{display:block;color:var(--green);font:600 15px ui-monospace,SFMono-Regular,Menlo,monospace;margin-bottom:8px}.command p{margin:0;color:var(--muted);font-size:12px;line-height:1.5}.command .example{display:block;margin-top:10px;padding:8px 9px;border-radius:7px;background:#070b0f;border:1px solid #202b36;color:#bfe7c1;font:12px ui-monospace,SFMono-Regular,Menlo,monospace;overflow:auto}.symbol-card code{font-size:19px}.symbol-card .meaning{color:#dfe7ef;font-weight:650}.count-badge{color:var(--muted);font-size:12px}
+.terminal{overflow:hidden}.term-head{background:#171e27;padding:10px 13px;display:flex;align-items:center;gap:7px;border-bottom:1px solid var(--border)}.dot{width:10px;height:10px;border-radius:50%;background:#5c6875}.term-title{margin-left:7px;color:#8997a6;font-size:12px}
+.term-body{padding:18px;background:#050807;min-height:300px;font:14px/1.7 ui-monospace,SFMono-Regular,Menlo,monospace}
+.output{white-space:pre-wrap;color:#b8c6b9;min-height:210px;max-height:340px;overflow:auto}.promptline{display:flex;align-items:center}.prompt{color:var(--green);white-space:nowrap}.term-input{flex:1;background:transparent;border:0;outline:0;color:white;font:inherit;padding-left:8px}
+.quiz{padding:22px}.quiz-q{font-size:18px;line-height:1.5}.answers{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:17px 0}.answer{text-align:left;padding:13px;border:1px solid var(--border);border-radius:9px;background:#111923;color:#dbe4ed}.answer.correct{border-color:var(--green);background:#102315}.answer.wrong{border-color:var(--red);background:#251314}.feedback{color:var(--muted);min-height:22px}
+.lesson-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.lesson{padding:17px;display:flex;justify-content:space-between;gap:12px;align-items:center}.lesson h4{margin:0 0 5px}.lesson p{margin:0;color:var(--muted);font-size:12px}.lesson button{white-space:nowrap}
+.cheat{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.cheat div{padding:14px;background:var(--panel);border:1px solid var(--border);border-radius:10px}.cheat code{color:var(--green);font-weight:700}.cheat small{display:block;color:var(--muted);margin-top:5px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;place-items:center;padding:20px;z-index:50}.modal.show{display:grid}.modal-box{max-width:760px;width:100%;max-height:85vh;overflow:auto;padding:25px}.modal-box h3{margin-top:0}.lesson-content{color:#bdc8d3;line-height:1.75}.lesson-content pre{background:#050807;border:1px solid var(--border);padding:14px;border-radius:9px;overflow:auto;color:var(--green)}
+.toast{position:fixed;right:22px;bottom:22px;background:#151e28;border:1px solid var(--border);padding:12px 16px;border-radius:10px;box-shadow:var(--shadow);transform:translateY(30px);opacity:0;pointer-events:none;transition:.25s;z-index:100}.toast.show{transform:none;opacity:1}
+.empty{padding:30px;text-align:center;color:var(--muted);grid-column:1/-1}
+footer{text-align:center;color:#647386;font-size:12px;padding:35px 0}
+@media(max-width:1050px){.levels{grid-template-columns:repeat(3,1fr)}.commands{grid-template-columns:repeat(2,1fr)}.cheat{grid-template-columns:repeat(3,1fr)}.hero{grid-template-columns:1fr}}
+@media(max-width:760px){.sidebar{transform:translateX(-100%);transition:.25s}.sidebar.open{transform:none}.main{margin-left:0;width:100%;padding:17px}.mobile-menu{display:block}.topbar{flex-wrap:wrap}.search{order:2;flex-basis:100%}.levels,.lesson-grid{grid-template-columns:1fr 1fr}.commands,.answers{grid-template-columns:1fr}.cheat{grid-template-columns:1fr 1fr}.hero-card{padding:22px}}
+@media(max-width:480px){.levels,.lesson-grid,.cheat{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}h2{font-size:23px}}
+
+.lab-hero{padding:22px;margin-bottom:16px}
+.lab-meta{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.pill{padding:6px 9px;border:1px solid var(--border);border-radius:99px;color:#aebbc8;font-size:11px;background:#0b1118}
+.lab-symbols{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:15px 0}
+.symbol-card{padding:15px;border:1px solid var(--border);border-radius:11px;background:#0b1118}.symbol-card code{font-size:19px;color:var(--green);font-weight:800}.symbol-card b{display:block;margin:5px 0}.symbol-card small{color:var(--muted);line-height:1.5}
+.exercise-list{display:grid;gap:11px}.exercise{padding:17px}.exercise h4{margin:0 0 8px}.exercise p{color:var(--muted);margin:0 0 10px}.exercise code{color:var(--green);background:#050807;padding:3px 6px;border-radius:5px}.exercise input{width:100%;background:#080d12;color:#e8eef5;border:1px solid var(--border);border-radius:8px;padding:11px;outline:none}.exercise input:focus{border-color:var(--green)}.check-result{font-size:12px;margin-top:7px;min-height:18px}.correct-text{color:var(--green)}.wrong-text{color:var(--red)}
+.lab-score{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:17px;margin-top:15px}.certificate{padding:34px;text-align:center;border:2px solid #8b7442;background:linear-gradient(145deg,#17150f,#0d1117)}.certificate h2{font-family:Georgia,serif;font-size:34px;color:#e9d18b}.certificate .cert-name{font-size:27px;color:white;margin:20px}.certificate .cert-line{height:1px;background:#8b7442;max-width:500px;margin:auto}.certificate small{color:#9ca8b5}
+@media(max-width:760px){.lab-symbols{grid-template-columns:1fr 1fr}.lab-score{align-items:flex-start;flex-direction:column}}
+
+/* Level 5 Mission */
+.mission-intro{padding:26px}.mission-badge{display:inline-block;color:#9ed4ff;background:#142b42;border:1px solid #27547c;border-radius:20px;padding:7px 12px;font-size:12px;font-weight:800;letter-spacing:.6px}
+.l5-quiz{padding:22px}.l5-top{display:flex;justify-content:space-between;gap:10px;color:#9fb0c1;font-size:13px}.l5-badge{color:#9ed4ff;font-weight:800}.l5-progress{height:9px;background:#202a35;border-radius:9px;margin:15px 0;overflow:hidden}.l5-progress span{display:block;height:100%;width:0;background:#4ea2e8;border-radius:9px;transition:.25s}.l5-q{font-size:21px;font-weight:800;margin:20px 0}.l5-opt{border:1px solid var(--border);border-radius:10px;padding:14px;margin:10px 0;cursor:pointer;background:#101821}.l5-opt:hover,.l5-opt.sel{background:#102235;border-color:#4ea2e8}.l5-feedback{padding:14px;border-radius:10px;margin-top:15px}.l5-ok{background:#102719;color:#9de5b0}.l5-bad{background:#2a1517;color:#ffb0b0}.l5-controls{display:flex;justify-content:space-between;margin-top:20px}.l5-result{padding:25px;text-align:center}.l5-score{font-size:50px;font-weight:900;color:#64b5f6}.l5-small{color:var(--muted)}.l5-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:20px 0}.l5-stats>div{border:1px solid var(--border);border-radius:10px;padding:15px;color:#aebdcb}.l5-stats b{font-size:21px;display:block;color:white;margin-top:5px}.l5-buttons{display:flex;justify-content:center;gap:10px;margin:20px;flex-wrap:wrap}.l5-certificate{display:none;background:#fff;color:#172536;border:5px solid #124a86;padding:25px;margin-top:25px;text-align:left}.l5-chead{display:flex;align-items:center;border-bottom:2px solid #124a86;padding-bottom:15px}.l5-pn{width:95px;height:95px;border-radius:50%;background:#151515;color:white;display:grid;place-items:center;font-size:32px;font-weight:bold}.l5-org{margin-left:18px;flex:1}.l5-org h2{margin:0}.l5-org p{color:#124a86;font-weight:bold;font-size:20px}.l5-penguin{font-size:50px}.l5-title{text-align:center;font-size:36px;font-weight:900;margin:25px 0 10px}.l5-ribbon{text-align:center;background:#124a86;color:white;padding:12px;font-size:20px;font-weight:bold}.l5-sub{text-align:center;letter-spacing:5px;font-weight:bold;margin:20px}.l5-mid{display:grid;grid-template-columns:1.2fr .8fr .5fr;gap:18px;align-items:center}.l5-info,.l5-scorebox{border:1px solid #bfd0e4;border-radius:12px;padding:22px}.l5-scorebox{text-align:center}.l5-big{font-size:56px;font-weight:bold;color:#124a86}.l5-medal{text-align:center;font-size:100px}.l5-cstats{display:grid;grid-template-columns:repeat(3,1fr);margin-top:20px;border:1px solid #bfd0e4}.l5-cstats div{text-align:center;padding:15px;border-right:1px solid #bfd0e4}.l5-instructor{margin-top:18px;border:1px solid #bfd0e4;padding:15px;border-radius:10px}.l5-note{text-align:center;font-size:12px;color:#607084;margin-top:12px}
+@media(max-width:700px){.l5-stats,.l5-mid{grid-template-columns:1fr}.l5-title{font-size:25px}.l5-chead{flex-wrap:wrap}.l5-org{min-width:70%}}
+@media print{
+  body.l5-print-mode *{visibility:hidden!important}
+  body.l5-print-mode #missions,body.l5-print-mode #missions *{visibility:visible!important}
+  body.l5-print-mode .sidebar,body.l5-print-mode .topbar,body.l5-print-mode footer,body.l5-print-mode .mission-intro,body.l5-print-mode .l5-quiz,body.l5-print-mode .section,body.l5-print-mode #l5Result>h2,body.l5-print-mode #l5Result>.l5-score,body.l5-print-mode #l5Result>.l5-small,body.l5-print-mode #l5Result>.l5-stats,body.l5-print-mode #l5Result>.l5-buttons{display:none!important}
+  body.l5-print-mode .main{margin:0;width:100%;padding:0}
+  body.l5-print-mode .page{display:block!important}
+  body.l5-print-mode .l5-result{display:block!important;border:0;box-shadow:none;padding:0}
+  body.l5-print-mode .l5-certificate{display:block!important}
+  @page{size:landscape;margin:6mm}
+}
+
+.mission-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;margin:18px 0 28px}.mission-card{padding:22px;border:1px solid var(--border,#263246);border-radius:18px;background:linear-gradient(145deg,rgba(20,28,42,.98),rgba(10,15,24,.98));box-shadow:0 12px 30px rgba(0,0,0,.18)}.mission-card.locked{opacity:.62}.mc-icon{font-size:30px}.mission-card h3{margin:10px 0 6px}.mission-card p{min-height:50px;color:var(--muted,#9aa7ba)}.mc-meta{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.mc-pill{padding:5px 9px;border-radius:999px;background:rgba(80,180,120,.1);font-size:12px}.mission-run{padding:22px;border:1px solid var(--border,#263246);border-radius:18px;background:#0c1320}.mr-head{display:flex;justify-content:space-between;gap:15px;align-items:center;flex-wrap:wrap}.mr-progress{height:8px;background:#1a2433;border-radius:99px;overflow:hidden;margin:15px 0}.mr-progress span{display:block;height:100%;background:#4ade80;width:0;transition:.25s}.mr-question{font-size:20px;font-weight:800;line-height:1.45;margin:24px 0 16px}.mr-options{display:grid;gap:10px}.mr-option{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border:1px solid #2b394d;border-radius:12px;cursor:pointer;background:#111a28;transition:.15s}.mr-option:hover:not(.locked){transform:translateY(-1px);border-color:#4ade80}.mr-option.locked{cursor:not-allowed}.mr-option.selected{border-color:#60a5fa;background:rgba(96,165,250,.1)}.mr-option.correct{border-color:#4ade80;background:rgba(74,222,128,.1)}.mr-option.wrong{border-color:#f87171;background:rgba(248,113,113,.08)}.mr-letter{font-weight:900;min-width:25px}.mr-feedback{margin-top:14px;padding:12px;border-radius:10px}.mr-ok{background:rgba(74,222,128,.1);color:#86efac}.mr-bad{background:rgba(248,113,113,.08);color:#fca5a5}.mr-actions{display:flex;justify-content:space-between;gap:10px;margin-top:20px}.mr-result{text-align:center;padding:30px}.mr-score{font-size:44px;font-weight:900;margin:10px}.cert-mini{margin-top:22px;padding:28px;border:2px solid #d8b45c;border-radius:14px;background:linear-gradient(145deg,#fffdf4,#f4ead0);color:#242424;text-align:center}.cert-mini h2{margin:5px}.cert-mini .big{font-size:42px;font-weight:900}.mission-locked-note{color:#fbbf24;margin-top:8px;font-size:13px}@media print{body.mission-print .page:not(#missions),body.mission-print #missionCards,body.mission-print .mr-head,body.mission-print .mr-progress,body.mission-print .mr-question,body.mission-print .mr-options,body.mission-print .mr-actions{display:none!important}body.mission-print #missions{display:block!important}.cert-mini{page-break-inside:avoid}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar" id="sidebar">
+  <div class="brand"><div class="logo">⌘</div><div><h1>Ubuntu Linux Master</h1><small>Learn • Practice • Master</small></div></div>
+  <div class="nav-title">Main</div>
+  <nav class="nav">
+    <button class="active" data-section="dashboard">⌂ <span>Dashboard</span></button>
+    <button data-section="lessons">▣ <span>Lessons</span></button>
+    <button data-section="commands">⌘ <span>Command Library</span></button>
+    <button data-section="symbols">{} <span>Shell Symbols</span></button>
+    <button data-section="terminal">>_ <span>Terminal Lab</span></button>
+    <button data-section="quiz">✓ <span>Quiz</span></button>
+    <button data-section="labs">⚑ <span>Mission Labs</span></button>
+    <button data-section="cheatsheet">▤ <span>Cheat Sheet</span></button>
+    <button data-section="missions">⚑ <span>Mission Labs</span></button>
+    <button data-section="about">ⓘ <span>About Linux</span></button>
+  </nav>
+  <div class="progress-mini">
+    <div class="progress-row"><span>Your progress</span><b id="sidePercent">0%</b></div>
+    <div class="bar"><span id="sideBar" style="width:0%"></span></div>
+    <div class="progress-row" style="margin:9px 0 0"><span>XP</span><b id="sideXP">0 XP</b></div>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <button class="icon-btn mobile-menu" id="menuBtn">☰</button>
+    <div class="search">⌕ <input id="searchInput" placeholder="Search commands, lessons, topics..."><span class="kbd">/</span></div>
+    <div class="top-actions"><button class="icon-btn" id="resetBtn" title="Reset progress">↻ Reset</button></div>
+  </div>
+
+  <section id="dashboard" class="page">
+    <div class="hero">
+      <div class="card hero-card">
+        <div class="eyebrow">UBUNTU / LINUX TERMINAL</div>
+        <h2>Become a Linux Master 🚀</h2>
+        <p>Learn Ubuntu command line skills from absolute beginner to advanced Linux administration. Study lessons, practice commands in a safe simulator, and test yourself with quizzes.</p>
+        <button class="btn primary" onclick="showSection('lessons')">Start Learning →</button>
+      </div>
+      <div class="card stats">
+        <div class="stat"><b id="statXP">0</b><span>Total XP</span></div>
+        <div class="stat"><b id="statDone">0</b><span>Lessons done</span></div>
+        <div class="stat"><b>10</b><span>Levels</span></div>
+        <div class="stat"><b>50</b><span>Lessons</span></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-head"><div><h3>Learning Path</h3><p>Progress from basic commands to system administration.</p></div><button class="btn" onclick="showSection('lessons')">View all</button></div>
+      <div class="levels" id="levelCards"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-head"><div><h3>Popular Commands</h3><p>Start with the commands you will use every day.</p></div></div>
+      <div class="commands" id="popularCommands"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-head"><div><h3>Quick Terminal</h3><p>Try the simulator without leaving the dashboard.</p></div><button class="btn" onclick="showSection('terminal')">Open Lab</button></div>
+      <div class="card terminal">
+        <div class="term-head"><i class="dot"></i><i class="dot"></i><i class="dot"></i><span class="term-title">ubuntu@linux-master: ~</span></div>
+        <div class="term-body"><div class="output" id="quickOutput">Ubuntu Linux Master terminal simulator.
+Type <b>help</b> to see available commands.
+
+</div><div class="promptline"><span class="prompt">student@ubuntu:~$</span><input class="term-input" id="quickInput" autocomplete="off"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="lessons" class="page" style="display:none">
+    <div class="section-head"><div><h3>50 Linux Lessons</h3><p>10 levels × 5 lessons. Click a lesson to study it.</p></div></div>
+    <div id="lessonList"></div>
+  </section>
+
+  <section id="commands" class="page" style="display:none">
+    <div class="section-head"><div><h3>Command Library</h3><p>Search and explore useful Ubuntu/Linux commands.</p></div></div>
+    <div class="commands" id="commandLibrary"></div>
+  </section>
+
+  <section id="symbols" class="page" style="display:none">
+    <div class="section-head"><div><h3>Shell Symbols & Syntax</h3><p>Master the small symbols that make Linux commands powerful: pipes, redirection, wildcards, variables, quotes, paths and operators.</p></div></div>
+    <div class="commands" id="symbolLibrary"></div>
+  </section>
+
+  <section id="terminal" class="page" style="display:none">
+    <div class="section-head"><div><h3>Terminal Lab</h3><p>Practice common commands in a safe browser-based simulator. It does not execute commands on your real computer.</p></div></div>
+    <div class="card terminal">
+      <div class="term-head"><i class="dot"></i><i class="dot"></i><i class="dot"></i><span class="term-title">ubuntu@linux-master: ~</span></div>
+      <div class="term-body"><div class="output" id="termOutput">Welcome to the Ubuntu Linux Master Terminal Lab.
+This is a simulator for learning. Type <b>help</b> to begin.
+
+</div><div class="promptline"><span class="prompt">student@ubuntu:~$</span><input class="term-input" id="termInput" autocomplete="off" autofocus></div></div>
+    </div>
+    <div class="section"><div class="commands" id="terminalTips"></div></div>
+  </section>
+
+  <section id="quiz" class="page" style="display:none">
+    <div class="section-head"><div><h3>Linux Knowledge Quiz</h3><p>Answer questions to earn XP.</p></div><button class="btn" onclick="newQuiz()">New Question</button></div>
+    <div class="card quiz">
+      <div class="quiz-q" id="quizQuestion"></div>
+      <div class="answers" id="quizAnswers"></div>
+      <div class="feedback" id="quizFeedback"></div>
+    </div>
+  </section>
+
+
+  <section id="labs" class="page" style="display:none">
+    <div class="card lab-hero">
+      <div class="eyebrow">LINUX COMMAND LINE LAB 2</div>
+      <h2>Special Characters &amp; Operators</h2>
+      <div class="lab-meta">
+        <span class="pill">Ubuntu / Linux Mint</span><span class="pill">Level: Beginner</span><span class="pill">Duration: 90 minutes</span>
+      </div>
+      <p>Practice <code>;</code>, <code>&amp;&amp;</code>, <code>~</code>, <code>*</code>, <code>?</code>, <code>{}</code>, <code>[]</code>, <code>#</code>, and <code>\</code> through guided examples and a final file-organizer mission.</p>
+    </div>
+
+    <div class="section">
+      <div class="section-head"><div><h3>Special Characters Reference</h3><p>The symbols and examples from Lab 2.</p></div></div>
+      <div class="lab-symbols" id="labSymbols"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-head"><div><h3>Guided Practice</h3><p>Study the examples before starting the final mission.</p></div></div>
+      <div class="lesson-grid" id="labExamples"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-head"><div><h3>Final Mission — Linux File Organizer</h3><p>Complete all 5 tasks. Each correct answer earns 20 XP.</p></div></div>
+      <div class="card" style="padding:18px">
+        <div class="exercise-list" id="labExercises"></div>
+        <div class="lab-score card">
+          <div><b id="labScore">0 / 5</b><div style="color:var(--muted);font-size:12px">Mission progress</div></div>
+          <button class="btn primary" id="checkLabBtn">Check Mission</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" id="certificateSection" style="display:none">
+      <div class="section-head"><div><h3>Mission Certificate</h3><p>Unlocked after completing Lab 2.</p></div></div>
+      <div class="card certificate">
+        <div class="eyebrow">UBUNTU LINUX MASTER</div>
+        <h2>Certificate of Achievement</h2>
+        <div class="cert-line"></div>
+        <div class="cert-name">Linux Command Line Lab 2</div>
+        <p>Special Characters &amp; Operators</p>
+        <p>Achievement: <b>Mission Completed</b></p>
+        <small>Generated locally by Ubuntu Linux Master • Lab 2</small>
+        <div style="margin-top:22px"><button class="btn" onclick="window.print()">🖨 Print Certificate</button></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="cheatsheet" class="page" style="display:none">
+    <div class="section-head"><div><h3>Linux Cheat Sheet</h3><p>A compact reference for daily terminal work.</p></div></div>
+    <div class="cheat" id="cheatSheet"></div>
+  </section>
+
+
+  <section id="missions" class="page" style="display:none">
+    <div class="section-head"><div><h3>Mission Labs</h3><p>Six progressive Linux missions. Once you select an answer, that answer is locked and cannot be changed during the attempt.</p></div></div>
+    <div class="mission-grid" id="missionCards"></div>
+    <div id="missionRunner" style="display:none"></div>
+  </section>
+
+  <section id="about" class="page" style="display:none">
+    <div class="card hero-card">
+      <div class="eyebrow">ABOUT</div><h2>What is Linux?</h2>
+      <div class="lesson-content">
+        <p>Linux is an open-source family of operating systems built around the Linux kernel. Ubuntu is a popular Linux distribution maintained by Canonical and a large open-source community.</p>
+        <p>The command line gives you direct control over files, processes, networking, packages, permissions, services and system configuration.</p>
+        <h3>Why learn the terminal?</h3>
+        <ul><li>Automate repetitive tasks with shell scripts.</li><li>Manage servers remotely through SSH.</li><li>Understand permissions, processes and networking.</li><li>Work effectively with development and DevOps tools.</li></ul>
+        <h3>Safety rule</h3><p>Never run a command you do not understand on a production system. Commands involving <code>sudo</code>, deletion, disks, permissions and networking can change or destroy data.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>Ubuntu Linux Master • Built as a single HTML file • Your progress is stored locally in this browser.</footer>
+</main>
+</div>
+
+<div class="modal" id="lessonModal">
+  <div class="modal-box card">
+    <div style="display:flex;justify-content:space-between;gap:15px"><div><div class="eyebrow" id="modalLevel"></div><h3 id="modalTitle"></h3></div><button class="icon-btn" onclick="closeModal()">✕</button></div>
+    <div class="lesson-content" id="modalContent"></div>
+    <div style="display:flex;justify-content:flex-end;margin-top:20px"><button class="btn primary" id="completeBtn">✓ Mark lesson complete</button></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const levels = [
+ {n:1,title:"Linux Foundations",desc:"Terminal, navigation, files and help"},
+ {n:2,title:"Files & Directories",desc:"Create, copy, move, delete and search"},
+ {n:3,title:"Text & Pipes",desc:"Read, edit, filter and combine text"},
+ {n:4,title:"Permissions",desc:"Users, groups, ownership and chmod"},
+ {n:5,title:"Processes",desc:"Monitor, control and manage processes"},
+ {n:6,title:"Networking",desc:"IP, DNS, ports, SSH and connectivity"},
+ {n:7,title:"Packages",desc:"APT, repositories and software management"},
+ {n:8,title:"Storage",desc:"Disks, mounts, filesystems and archives"},
+ {n:9,title:"Shell & Automation",desc:"Variables, scripts, loops and scheduling"},
+ {n:10,title:"Linux Master",desc:"Services, logs, security and administration"}
+];
+
+const lessons = [
+["What is the Linux terminal","Learn what a shell is, how commands work, and why the terminal is important.","echo $SHELL","The terminal is a text interface. A shell such as Bash reads your command, expands it, and asks the operating system to perform the requested action."],
+["Your first commands","Use echo, whoami, hostname and date.","whoami","Try whoami, hostname, date and echo 'Hello Linux'. These commands are safe and help you understand your environment."],
+["pwd — where am I?","Print the current working directory.","pwd","pwd means print working directory. It tells you the absolute path of the directory your shell is currently using."],
+["cd — move around","Navigate between directories.","cd /var/log","cd changes the current directory. Use cd .. for the parent, cd ~ for your home directory, and cd - to return to the previous directory."],
+["ls — list files","Inspect files and directories.","ls -lah","ls lists directory contents. -l shows details, -a includes hidden files, and -h makes sizes easier to read."],
+
+["mkdir — create directories","Create folders and nested directory structures.","mkdir -p projects/linux","mkdir creates directories. The -p option creates missing parent directories too."],
+["touch — create files","Create an empty file or update its timestamp.","touch notes.txt","touch is commonly used to create an empty file. It can also update a file's modification time."],
+["cp — copy files","Copy files and directories.","cp file.txt backup.txt","cp copies data. Use cp -r for directories. Always verify the destination when copying important files."],
+["mv — move and rename","Move files or rename them.","mv old.txt new.txt","mv can rename a file or move it into another directory."],
+["rm — remove safely","Delete files and understand recursive deletion.","rm file.txt","rm removes files. rm -r can remove directories recursively and should be used carefully. There is usually no recycle bin in the terminal."],
+
+["cat — read files","Print a file's contents.","cat /etc/hostname","cat is useful for short files. For large files, use less so you can scroll without loading everything into your workflow."],
+["less — view long text","Read logs and documents interactively.","less /var/log/syslog","less lets you scroll, search with /, and quit with q."],
+["head and tail","Read the beginning or end of a file.","tail -f app.log","head shows the first lines. tail shows the last lines. tail -f follows a growing log."],
+["grep — find text","Search for patterns inside text.","grep -i error app.log","grep filters lines matching a pattern. -i makes the search case-insensitive."],
+["Pipes and redirection","Connect commands and save output.","ls -lah | grep '.log'","The pipe | sends one command's output into another command. > overwrites a file and >> appends to a file."],
+
+["Linux permissions","Understand read, write and execute permissions.","ls -l","Permissions are represented for user, group and others. r=read, w=write, x=execute."],
+["chmod — change permissions","Change access permissions on files.","chmod u+x script.sh","chmod modifies permission bits. Symbolic notation such as u+x is easy to read and safer than guessing numeric values."],
+["chown — ownership","Change a file's owner and group.","sudo chown user:group file.txt","Ownership controls who a file belongs to. Changing ownership often requires administrative privileges."],
+["Users and groups","Inspect accounts and group membership.","id","id shows your user ID and group IDs. groups shows groups you belong to."],
+["sudo and least privilege","Run one administrative command with elevated rights.","sudo apt update","sudo temporarily grants administrative privileges to an allowed user. Use the smallest privilege necessary."],
+
+["ps — inspect processes","List processes running on the system.","ps aux","ps provides a snapshot of processes. Look at PID, CPU, memory and command columns."],
+["top and htop","Monitor processes interactively.","top","top updates process information continuously. htop is a friendlier alternative when installed."],
+["kill — signal processes","Send a signal to a process.","kill 1234","kill sends signals to a PID. Start with the default TERM signal and only use stronger signals when appropriate."],
+["jobs, bg and fg","Control processes started from your shell.","jobs","jobs lists shell jobs. Ctrl+Z pauses a foreground process, bg resumes it in the background, and fg brings it back."],
+["system resource checks","Inspect CPU, memory and uptime.","free -h","Useful commands include free -h, uptime, df -h and vmstat for different resource views."],
+
+["IP addresses","Inspect local network addresses.","ip addr","The ip command is the modern tool for inspecting and configuring Linux networking."],
+["Connectivity with ping","Test whether a host responds.","ping -c 4 8.8.8.8","ping sends ICMP echo requests. It can help separate basic connectivity problems from DNS problems."],
+["DNS lookup","Resolve hostnames to IP addresses.","getent hosts example.com","DNS maps names such as example.com to IP addresses. dig is another powerful DNS diagnostic tool."],
+["Ports and sockets","See listening network services.","ss -tulpn","ss displays sockets. Listening ports can reveal which services are accepting connections."],
+["SSH remote access","Connect to another Linux machine securely.","ssh user@server","SSH provides encrypted remote shell access. Use keys instead of passwords where practical."],
+
+["APT basics","Update package indexes and install software.","sudo apt update","apt is Ubuntu's high-level package manager. Updating package indexes helps it know which versions are available."],
+["Install and remove packages","Manage software packages.","sudo apt install curl","Use apt install to add packages and apt remove to uninstall them. Review proposed changes before confirming."],
+["Search packages","Find packages by name or description.","apt search nginx","apt search helps locate available packages in configured repositories."],
+["Upgrade the system","Install available package upgrades.","sudo apt upgrade","Regular upgrades provide bug fixes and security updates. On managed systems, follow your organization's maintenance policy."],
+["Repositories and sources","Understand where packages come from.","apt policy bash","Repositories provide signed package metadata and packages. Inspect sources before adding third-party repositories."],
+
+["df — filesystem usage","See free and used space.","df -h","df reports filesystem space. -h displays human-readable units."],
+["du — directory usage","Find which directories consume space.","du -sh *","du measures file and directory usage. Combine it with sort to locate large directories."],
+["lsblk — block devices","Inspect disks and partitions.","lsblk","lsblk displays block devices such as disks, partitions and some mount relationships."],
+["mount and umount","Attach and detach filesystems.","mount | head","Mounting makes a filesystem available at a directory. Unmount with umount when it is safe to detach."],
+["tar — archives","Create and extract tar archives.","tar -czf backup.tar.gz project/","tar packages many files into one archive. With gzip, .tar.gz files are common for backups and source distributions."],
+
+["Shell variables","Store values and inspect the environment.","name=Linux; echo $name","Variables are expanded with $. Environment variables can influence programs, paths and shell behavior."],
+["Command substitution","Use command output as a value.","today=$(date +%F)","$(command) runs a command and substitutes its output into another command."],
+["Bash scripts","Turn commands into reusable programs.","#!/bin/bash","A shell script is a text file containing commands. Make it executable with chmod +x script.sh and run it with ./script.sh."],
+["Conditions and loops","Automate decisions and repetition.","for f in *.log; do echo \"$f\"; done","Bash supports if statements, for/while loops, functions and exit statuses for automation."],
+["cron scheduling","Run recurring tasks automatically.","crontab -e","cron can schedule commands. Test scripts manually first, use absolute paths where helpful, and log important jobs."],
+
+["systemctl and services","Inspect and manage systemd services.","systemctl status ssh","systemctl controls systemd units. Use status to inspect, start/stop to control, and enable/disable to configure boot behavior."],
+["journalctl — system logs","Read logs from systemd.","journalctl -u ssh --since today","journalctl queries the systemd journal. Filtering by unit and time is useful for troubleshooting."],
+["Environment and PATH","Understand how commands are found.","echo $PATH","PATH is a colon-separated list of directories searched for executable commands. Use command -v to see what will run."],
+["Security basics","Build safe Linux administration habits.","sudo -l","Use strong authentication, updates, least privilege, careful permissions, backups and logging. Never copy destructive commands blindly."],
+["Troubleshooting workflow","Approach Linux problems methodically.","systemctl status SERVICE","A useful workflow: reproduce the issue, inspect status and logs, check resources/networking, make one controlled change, then verify."],
+];
+
+const commands = [
+["pwd","Print the current working directory","pwd"],["ls","List directory contents","ls -lah"],["cd","Change directory","cd /var/log"],["mkdir","Create directories","mkdir -p projects/linux"],["rmdir","Remove an empty directory","rmdir old_folder"],["touch","Create an empty file","touch notes.txt"],["cp","Copy files or directories","cp file.txt backup.txt"],["mv","Move or rename files","mv old.txt new.txt"],["rm","Remove files","rm file.txt"],["ln","Create links","ln -s target link"],["readlink","Read where a symbolic link points","readlink -f link"],["basename","Get the filename part of a path","basename /home/student/file.txt"],["dirname","Get the directory part of a path","dirname /home/student/file.txt"],["realpath","Print an absolute canonical path","realpath notes.txt"],["tree","Show directories as a tree","tree -L 2"],["file","Identify a file type","file image.png"],["stat","Show detailed file metadata","stat notes.txt"],["cat","Print file contents","cat notes.txt"],["tac","Print file contents in reverse line order","tac notes.txt"],["less","Read long text interactively","less /var/log/syslog"],["more","Page through text","more file.txt"],["head","Show the first lines","head -n 20 file.txt"],["tail","Show the last lines","tail -n 20 file.txt"],["grep","Search text patterns","grep -in error app.log"],["grep -R","Search recursively","grep -Rni 'error' ."],["find","Find files and directories","find . -name '*.log'"],["locate","Find files from an index","locate ssh_config"],["which","Find a command executable","which bash"],["whereis","Locate binary, source and manual","whereis bash"],["type","Show how the shell interprets a command","type cd"],["command -v","Find the command that will execute","command -v python3"],["man","Open a manual page","man ls"],["info","Read GNU info documentation","info coreutils"],["apropos","Search manual page descriptions","apropos network"],["whatis","Show a short command description","whatis grep"],["history","Show command history","history"],["clear","Clear the terminal","clear"],["echo","Print text or variables","echo 'Hello Linux'"],["printf","Print formatted text","printf User:$USER"],["sort","Sort lines","sort names.txt"],["uniq","Remove adjacent duplicate lines","sort names.txt | uniq"],["wc","Count lines, words and bytes","wc -l file.txt"],["cut","Extract fields or columns","cut -d: -f1 /etc/passwd"],["tr","Translate or delete characters","tr 'a-z' 'A-Z'"],["sed","Process and transform text","sed 's/old/new/g' file.txt"],["awk","Process structured text","awk '{print $1}' file.txt"],["xargs","Build command arguments from input","printf a | xargs echo"],["tee","Write output to a file and stdout","ls -la | tee listing.txt"],["diff","Compare text files","diff old.txt new.txt"],["cmp","Compare files byte by byte","cmp file1 file2"],["comm","Compare sorted files","comm a.txt b.txt"],["paste","Merge lines from files","paste names.txt ages.txt"],["join","Join files on a common field","join users.txt groups.txt"],["split","Split a file into pieces","split -l 100 big.txt part_"],["shuf","Randomize lines","shuf names.txt"],["rev","Reverse characters in each line","rev file.txt"],["strings","Find printable text in binary data","strings program"],["tee","Copy stdin to stdout and files","echo hello | tee output.txt"],["nano","Beginner-friendly terminal editor","nano notes.txt"],["vim","Powerful terminal editor","vim notes.txt"],["emacs","Extensible text editor","emacs notes.txt"],["chmod","Change file permissions","chmod u+x script.sh"],["chown","Change file owner/group","sudo chown user:group file.txt"],["chgrp","Change file group","sudo chgrp developers file.txt"],["umask","Show or set default permission mask","umask 022"],["id","Show user and group IDs","id"],["whoami","Show the current username","whoami"],["who","Show logged-in users","who"],["w","Show users and their activity","w"],["users","List logged-in usernames","users"],["groups","Show your groups","groups"],["passwd","Change a user's password","passwd"],["useradd","Create a user account","sudo useradd -m alice"],["usermod","Modify a user account","sudo usermod -aG sudo alice"],["userdel","Delete a user account","sudo userdel -r alice"],["groupadd","Create a group","sudo groupadd developers"],["groupmod","Modify a group","sudo groupmod -n dev developers"],["groupdel","Delete a group","sudo groupdel developers"],["getent","Query system databases","getent passwd alice"],["sudo","Run an allowed command with elevated privileges","sudo apt update"],["su","Switch to another user","su - alice"],["visudo","Safely edit sudoers configuration","sudo visudo"],["ps","Show a process snapshot","ps aux"],["top","Monitor processes interactively","top"],["htop","Interactive process viewer","htop"],["pgrep","Find process IDs by name","pgrep nginx"],["pkill","Send a signal to processes by name","pkill -TERM app"],["kill","Send a signal to a process","kill 1234"],["killall","Send a signal to processes by name","killall app"],["jobs","List shell background jobs","jobs"],["bg","Resume a stopped job in background","bg %1"],["fg","Bring a job to foreground","fg %1"],["nohup","Run a command immune to hangups","nohup ./script.sh > app.log 2>&1 &"],["nice","Start a process with adjusted priority","nice -n 10 command"],["renice","Change process priority","renice 10 -p 1234"],["free","Show memory usage","free -h"],["uptime","Show uptime and load average","uptime"],["vmstat","Show virtual memory statistics","vmstat 1 5"],["iostat","Show CPU and I/O statistics","iostat"],["lsof","List open files and sockets","sudo lsof -i :80"],["fuser","Identify processes using a file/socket","sudo fuser -n tcp 80"],["ip","Inspect/configure network interfaces and routes","ip addr"],["hostname","Show or set hostname","hostname"],["hostnamectl","Inspect system hostname settings","hostnamectl"],["ping","Test IP connectivity","ping -c 4 8.8.8.8"],["ss","Inspect sockets and listening ports","ss -tulpn"],["curl","Transfer data from URLs","curl -I https://example.com"],["wget","Download files from URLs","wget https://example.com/file.zip"],["ssh","Securely connect to a remote host","ssh user@server"],["ssh-keygen","Create an SSH key pair","ssh-keygen -t ed25519"],["ssh-copy-id","Install an SSH public key on a server","ssh-copy-id user@server"],["scp","Copy files over SSH","scp file.txt user@server:/tmp/"],["rsync","Synchronize files efficiently","rsync -av project/ backup/"],["dig","Query DNS records","dig example.com"],["nslookup","Query DNS information","nslookup example.com"],["traceroute","Trace the network path to a host","traceroute example.com"],["tracepath","Trace path and discover MTU","tracepath example.com"],["resolvectl","Inspect DNS resolver state","resolvectl status"],["ip route","Show routing table","ip route"],["nmcli","Manage NetworkManager from CLI","nmcli device status"],["apt","Ubuntu package manager","sudo apt update"],["apt search","Search available packages","apt search nginx"],["apt show","Show package details","apt show curl"],["apt install","Install a package","sudo apt install curl"],["apt remove","Remove a package","sudo apt remove curl"],["apt purge","Remove package and configuration files","sudo apt purge package-name"],["apt update","Refresh package indexes","sudo apt update"],["apt upgrade","Upgrade installed packages","sudo apt upgrade"],["apt autoremove","Remove no-longer-needed dependencies","sudo apt autoremove"],["apt list","List packages and versions","apt list --installed"],["apt policy","Show package versions and repository priority","apt policy bash"],["dpkg","Low-level Debian package management","dpkg -l"],["dpkg -L","List files installed by a package","dpkg -L bash"],["snap","Manage Snap packages","snap list"],["df","Show filesystem free space","df -h"],["du","Measure file and directory usage","du -sh *"],["lsblk","List block devices","lsblk -f"],["blkid","Show block device UUIDs and types","sudo blkid"],["mount","Mount a filesystem","mount | head"],["umount","Unmount a filesystem","sudo umount /mnt/data"],["findmnt","Show mounted filesystems","findmnt"],["fdisk","Inspect/manage partition tables","sudo fdisk -l"],["parted","Partition disks","sudo parted -l"],["mkfs","Create a filesystem","sudo mkfs.ext4 /dev/sdX1"],["fsck","Check and repair a filesystem","sudo fsck /dev/sdX1"],["du -sh","Show total directory size","du -sh ~/Downloads"],["tar","Create or extract tar archives","tar -czf backup.tar.gz project/"],["gzip","Compress with gzip","gzip file.txt"],["gunzip","Decompress gzip files","gunzip file.txt.gz"],["zip","Create ZIP archives","zip -r archive.zip folder/"],["unzip","Extract ZIP archives","unzip archive.zip"],["zcat","Read gzip-compressed text","zcat access.log.gz"],["date","Show date and time","date"],["cal","Show a calendar","cal"],["timedatectl","Inspect system time settings","timedatectl"],["systemctl","Manage systemd services and units","systemctl status ssh"],["service","Legacy-style service management interface","sudo service ssh status"],["journalctl","Query systemd logs","journalctl -u ssh --since today"],["dmesg","Show kernel ring-buffer messages","dmesg | tail"],["uname","Show kernel/system information","uname -a"],["lsb_release","Show Ubuntu release information","lsb_release -a"],["env","Show environment variables","env"],["printenv","Print environment variables","printenv PATH"],["export","Set an environment variable","export EDITOR=nano"],["set","Show shell variables/functions","set"],["alias","Create a shell shortcut","alias ll='ls -lah'"],["unalias","Remove a shell alias","unalias ll"],["source","Read and execute a shell file in current shell","source ~/.bashrc"],["bash","Run the Bash shell","bash script.sh"],["sh","Run a POSIX shell","sh script.sh"],["crontab","Edit scheduled cron jobs","crontab -e"],["at","Schedule a one-time command","at 18:00"],["sleep","Pause for a specified time","sleep 2"],["watch","Repeat a command periodically","watch -n 2 'date'"],["timeout","Run a command with a time limit","timeout 10s command"],["seq","Generate a sequence of numbers","seq 1 5"],["expr","Evaluate simple expressions","expr 10 + 5"],["bc","Calculator language","echo '10/3' | bc -l"],["yes","Repeatedly output a string","yes | head"],["true","Return success status","true"],["false","Return failure status","false"],["test","Evaluate a condition","test -f notes.txt"],["[ ]","Shell test syntax","[ -f notes.txt ] && echo yes"],["read","Read user input into a variable","read name"],["printf","Reliable formatted output","printf hello"],["exit","Exit the current shell","exit"],["logout","End a login shell session","logout"]
+];
+
+const shellSymbols = [
+[";","Command separator","Runs commands sequentially, whether the previous command succeeds or fails.","mkdir test; cd test"],
+["&&","AND operator","Runs the next command only when the previous command succeeds (exit status 0).","mkdir app && cd app"],
+["||","OR operator","Runs the next command only when the previous command fails.","command || echo 'failed'"],
+["|","Pipe","Sends standard output from one command to standard input of another.","ls -la | grep '.txt'"],
+["|&","Pipe stdout + stderr","Bash shortcut for piping both standard output and standard error.","command |& grep error"],
+[">","Output redirection","Writes stdout to a file and replaces its previous contents.","echo hello > file.txt"],
+[">>","Append redirection","Adds stdout to the end of a file instead of replacing it.","echo world >> file.txt"],
+["<","Input redirection","Uses a file as standard input for a command.","sort < names.txt"],
+["2>","Redirect stderr","Sends standard error (file descriptor 2) to a file.","command 2> errors.log"],
+["2>>","Append stderr","Appends standard error to a file.","command 2>> errors.log"],
+["2>&1","Merge stderr into stdout","Redirects stderr to wherever stdout is currently going.","command > all.log 2>&1"],
+["&","Background operator","Starts a command asynchronously so the shell prompt returns.","sleep 60 &"],
+["~","Home directory","Expands to the current user's home directory in normal shell path expansion.","cd ~/Downloads"],
+["/","Root/path separator","A leading / means the filesystem root; / also separates path components.","cd /var/log"],
+[".","Current directory","Represents the current directory in paths and is used to run local executables.","./script.sh"],
+["..","Parent directory","Represents the directory one level above the current directory.","cd .."],
+["-","Option prefix / stdin marker","A single dash commonly introduces short options; in some commands - means standard input.","ls -l; cat -"],
+["--","Long options / end options","Often introduces long options; a standalone -- can stop option parsing.","ls --all; rm -- -file"],
+["*","Wildcard / glob","Matches zero or more characters in a filename pattern.","ls *.txt"],
+["?","Single-character wildcard","Matches exactly one character in a filename glob.","ls file?.txt"],
+["[ ]","Character class / test","In globs, matches one character from a set/range; [ ] is also shell test syntax.","ls file[0-9].txt"],
+["[! ]","Negated glob class","Inside a glob character class, ! can negate the set in Bash patterns.","ls file[!0].txt"],
+["{ }","Brace expansion","Generates multiple words before command execution; useful for concise repetition.","echo file{1,2,3}.txt"],
+["${}","Parameter expansion","Expands a shell variable and allows more precise variable syntax.","echo ${HOME}"],
+["$","Variable expansion","Reads the value of a shell variable.","echo $USER"],
+["$( )","Command substitution","Runs a command and substitutes its output into the surrounding command.","echo $(date +%F)"],
+["` `","Legacy command substitution","Older syntax for command substitution; $(...) is generally easier to nest and read.","echo `date +%F`"],
+["' ' ","Single quotes","Preserve the literal value of almost everything inside them; variables are not expanded.","echo '$HOME'"],
+[`" "`,`Double quotes`,`Protect spaces and most special characters while still allowing variable and command substitution.`,`echo "$HOME"`],
+[`\\`,`Escape character`,`Prevents the shell from interpreting the next character specially.`,`echo hello\\ world`],
+["#","Comment marker","In a shell script, # starts a comment unless it occurs inside quotes or another special context.","# this is a comment"],
+["!","History expansion / logical negation","In interactive Bash history expansion, ! references previous commands; in tests, ! can negate a condition.","!!"],
+["=","Assignment","Assigns a value to a shell variable without spaces around =.","name=Linux"],
+[":","Null command","A shell builtin that does nothing and returns success; useful as a placeholder or in loops.",":"],
+["$?","Last exit status","Contains the numeric exit status of the most recently executed foreground command.","echo $?"],
+["$#","Argument count","In a shell script, contains the number of positional arguments.","echo $#"],
+["$@","All positional arguments","Expands to script arguments; quoted $@ preserves each argument separately.","printf args"],
+["$0","Script/command name","In a script, usually contains the script name or invocation name.","echo $0"],
+["$1","First positional argument","In a script, $1 is the first argument supplied by the caller.","echo $1"],
+["( )","Subshell grouping","Runs grouped commands in a subshell environment.","(cd /tmp && pwd)"],
+["{ ; }","Current-shell grouping","Groups commands in the current shell; semicolon/newline before } is required in many forms.","{ echo one; echo two; }"],
+["&&=","Success chaining","Conceptual shorthand for command chaining with &&; not itself a special Bash token.","a && b"],
+["2>&1 |","Combined error/output pipe","A common pattern to pipe both stdout and stderr; order of redirections matters.","command 2>&1 | grep error"]
+];
+
+const quizBank = [
+["Which command prints the current working directory?",["pwd","cd","where","locate"],0],
+["Which command lists hidden files too?",["ls -r","ls -a","ls -h","ls -x"],1],
+["What does chmod u+x script.sh do?",["Deletes the script","Adds execute permission for the user","Changes owner","Compresses the file"],1],
+["Which command is commonly used to search text?",["grep","mkdir","mount","passwd"],0],
+["Which command manages packages on Ubuntu?",["yum","apt","pacman","apk"],0],
+["Which command shows filesystem free space?",["du","df","free","space"],1],
+["Which command displays listening sockets?",["ss","ls","listen","ports"],0],
+["What does sudo provide?",["Internet access","Temporary elevated privileges","A new shell language","Compression"],1],
+["Which command views systemd journal logs?",["journalctl","syslog","logs","dmesgctl"],0],
+["Which command securely connects to a remote Linux host?",["ftp","ssh","telnet","remote"],1],
+["What does | do in the shell?",["Runs as root","Pipes output to another command","Deletes output","Starts a loop"],1],
+["What does >> generally do?",["Appends output to a file","Reads a file","Deletes a file","Changes permissions"],0]
+];
+
+const cheat = [
+["pwd","Current directory"],["ls -lah","Detailed + hidden files"],["cd ..","Parent directory"],["mkdir -p a/b","Create nested dirs"],["cp -r A B","Copy directory"],["mv A B","Move/rename"],["rm -i file","Confirm before delete"],["find . -name '*.log'","Find logs"],["grep -R 'error' .","Recursive search"],["less file","Read long file"],["head -n 20 file","First 20 lines"],["tail -f file","Follow log"],["command -v bash","Find executable"],["chmod 755 file","Common executable mode"],["chown user:group file","Change ownership"],["id","User/group IDs"],["ps aux","Process list"],["kill PID","Terminate gracefully"],["free -h","Memory"],["df -h","Disk space"],["du -sh *","Directory sizes"],["ip addr","Network addresses"],["ss -tulpn","Listening ports"],["ping -c 4 host","Connectivity"],["ssh user@host","Remote shell"],["sudo apt update","Update package lists"],["sudo apt install PKG","Install package"],["apt search TERM","Search packages"],["tar -czf a.tgz dir/","Create archive"],["tar -xzf a.tgz","Extract archive"],["systemctl status SVC","Service status"],["journalctl -u SVC","Service logs"],["crontab -e","Edit cron jobs"],["history","Command history"],["man COMMAND","Manual page"]
+];
+
+let state = JSON.parse(localStorage.getItem("linuxMasterState") || '{"completed":[],"xp":0}');
+if(!Array.isArray(state.completed)) state.completed=[];
+if(typeof state.xp!=="number") state.xp=0;
+if(!Array.isArray(state.lab2)) state.lab2=[];
+let currentLesson = null, currentQuiz = -1;
+
+function save(){localStorage.setItem("linuxMasterState",JSON.stringify(state)); updateProgress();}
+function updateProgress(){
+  const done=state.completed.length, pct=Math.round(done/lessons.length*100);
+  document.getElementById("sidePercent").textContent=pct+"%";
+  document.getElementById("sideBar").style.width=pct+"%";
+  document.getElementById("sideXP").textContent=state.xp+" XP";
+  document.getElementById("statXP").textContent=state.xp;
+  document.getElementById("statDone").textContent=done;
+}
+function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2200)}
+function showSection(id){
+  document.querySelectorAll(".page").forEach(p=>p.style.display=p.id===id?"block":"none");
+  document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.section===id));
+  document.getElementById("sidebar").classList.remove("open");
+  window.scrollTo({top:0,behavior:"smooth"});
+  if(id==="quiz" && currentQuiz<0)newQuiz();
+}
+document.querySelectorAll(".nav button").forEach(b=>b.addEventListener("click",()=>showSection(b.dataset.section)));
+
+function renderLevels(){
+ const el=document.getElementById("levelCards"); el.innerHTML="";
+ levels.forEach(l=>{
+   const start=(l.n-1)*5,end=start+5,done=lessons.slice(start,end).filter((_,i)=>state.completed.includes(start+i)).length;
+   const d=document.createElement("div"); d.className="card level";
+   d.innerHTML=`<div class="level-num">LEVEL ${String(l.n).padStart(2,"0")}</div><h4>${l.title}</h4><p>${l.desc}</p><div class="bar"><span style="width:${done/5*100}%"></span></div><small style="color:#718091">${done}/5 lessons</small>`;
+   d.onclick=()=>{showSection("lessons");setTimeout(()=>document.getElementById("level-"+l.n)?.scrollIntoView({behavior:"smooth"}),100)};el.appendChild(d);
+ });
+}
+function renderLessons(){
+ const el=document.getElementById("lessonList");el.innerHTML="";
+ levels.forEach((l,li)=>{
+  const wrap=document.createElement("div");wrap.className="section";wrap.id="level-"+l.n;
+  wrap.innerHTML=`<div class="section-head"><div><h3>Level ${l.n}: ${l.title}</h3><p>${l.desc}</p></div></div>`;
+  const grid=document.createElement("div");grid.className="lesson-grid";
+  for(let i=0;i<5;i++){let idx=li*5+i,x=lessons[idx],done=state.completed.includes(idx);
+   const card=document.createElement("div");card.className="card lesson";
+   card.innerHTML=`<div><h4>${done?"✓ ":""}${idx+1}. ${x[0]}</h4><p>${x[1]}</p></div><button class="btn ${done?"":"primary"}">${done?"Review":"Study"}</button>`;
+   card.querySelector("button").onclick=()=>openLesson(idx);grid.appendChild(card);
+  }
+  wrap.appendChild(grid);el.appendChild(wrap);
+ });
+}
+function openLesson(idx){
+ currentLesson=idx;const x=lessons[idx],li=Math.floor(idx/5);
+ document.getElementById("modalLevel").textContent=`LEVEL ${li+1} • LESSON ${idx+1}`;
+ document.getElementById("modalTitle").textContent=x[0];
+ document.getElementById("modalContent").innerHTML=`<p>${x[1]}</p><h4>Example</h4><pre>$ ${escapeHtml(x[2])}</pre><h4>Explanation</h4><p>${x[3]}</p>`;
+ const btn=document.getElementById("completeBtn"),done=state.completed.includes(idx);
+ btn.textContent=done?"✓ Completed":"✓ Mark lesson complete";btn.disabled=done;btn.style.opacity=done?".6":"1";
+ document.getElementById("lessonModal").classList.add("show");
+ btn.onclick=()=>{if(!state.completed.includes(idx)){state.completed.push(idx);state.xp+=20;save();renderLevels();renderLessons();btn.textContent="✓ Completed";btn.disabled=true;toast("+20 XP • Lesson completed!")}};
+}
+function closeModal(){document.getElementById("lessonModal").classList.remove("show")}
+function escapeHtml(s){return s.replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+
+function renderCommands(filter=""){
+ const q=filter.toLowerCase();const el=document.getElementById("commandLibrary");el.innerHTML="";
+ const list=commands.filter(c=>(c[0]+" "+c[1]+" "+(c[2]||"")).toLowerCase().includes(q));
+ if(!list.length){el.innerHTML='<div class="empty">No commands found.</div>';return}
+ document.querySelector('#commands .section-head p').innerHTML=`${list.length} commands shown. Search by command name, purpose, or example.`;
+ list.forEach(c=>{const d=document.createElement("div");d.className="card command";d.innerHTML=`<code>${escapeHtml(c[0])}</code><p>${escapeHtml(c[1])}</p>${c[2]?`<span class="example">$ ${escapeHtml(c[2])}</span>`:""}`;d.onclick=()=>{showSection("terminal");document.getElementById("termInput").value=c[0]+" ";document.getElementById("termInput").focus()};el.appendChild(d)});
+}
+function renderSymbols(filter=""){
+ const q=filter.toLowerCase();const el=document.getElementById("symbolLibrary");el.innerHTML="";
+ const list=shellSymbols.filter(c=>(c[0]+" "+c[1]+" "+c[2]+" "+c[3]).toLowerCase().includes(q));
+ document.querySelector('#symbols .section-head p').innerHTML=`${list.length} syntax items. These symbols are context-sensitive, so always check the command's documentation.`;
+ if(!list.length){el.innerHTML='<div class="empty">No shell syntax found.</div>';return}
+ list.forEach(c=>{const d=document.createElement("div");d.className="card command symbol-card";d.innerHTML=`<code>${escapeHtml(c[0])}</code><p class="meaning">${escapeHtml(c[1])}</p><p>${escapeHtml(c[2])}</p><span class="example">$ ${escapeHtml(c[3])}</span>`;el.appendChild(d)});
+}
+function renderPopular(){
+ const el=document.getElementById("popularCommands");el.innerHTML="";
+ commands.slice(0,9).forEach(c=>{const d=document.createElement("div");d.className="card command";d.innerHTML=`<code>${c[0]}</code><p>${c[1]}</p>`;el.appendChild(d)});
+}
+function renderCheat(){
+ const el=document.getElementById("cheatSheet");el.innerHTML="";
+ cheat.forEach(c=>{const d=document.createElement("div");d.innerHTML=`<code>${escapeHtml(c[0])}</code><small>${escapeHtml(c[1])}</small>`;el.appendChild(d)});
+}
+function renderTips(){
+ const el=document.getElementById("terminalTips");
+ [["help","List simulator commands"],["pwd","Show current directory"],["ls -la","List simulated files"],["cd /var/log","Change simulated directory"],["clear","Clear terminal output"],["whoami","Show current user"]].forEach(c=>{let d=document.createElement("div");d.className="card command";d.innerHTML=`<code>${c[0]}</code><p>${c[1]}</p>`;el.appendChild(d)});
+}
+
+const fakeFS={
+ "~":["Desktop/","Documents/","Downloads/","Music/","Pictures/","projects/","notes.txt"],
+ "/":["bin/","boot/","dev/","etc/","home/","opt/","tmp/","usr/","var/"],
+ "/var":["cache/","lib/","log/","tmp/"],
+ "/var/log":["auth.log","kern.log","syslog","dpkg.log"],
+ "/home":["student/"],
+ "/home/student":["Desktop/","Documents/","Downloads/","projects/","notes.txt"]
+};
+let simCwd="~";
+function terminalRun(raw,out){
+ const cmd=raw.trim();if(!cmd)return;
+ const parts=cmd.split(/\s+/),base=parts[0],args=parts.slice(1);
+ let r="";
+ if(base==="help") r=`Available simulator commands:
+  help       Show this help
+  pwd        Print working directory
+  ls         List files
+  cd PATH    Change directory
+  whoami     Show current user
+  hostname   Show hostname
+  date       Show date
+  echo TEXT  Print text
+  cat FILE   Read a sample file
+  clear      Clear output
+  history    Show recent commands
+  uname      Show Linux information
+  apt        Package manager demo
+  man CMD    Show a short manual
+  exit       End session (simulated)`;
+ else if(base==="pwd") r=simCwd==="~"?"/home/student":simCwd;
+ else if(base==="ls"){let p=simCwd==="~"?"/home/student":simCwd;r=(fakeFS[p]||fakeFS["~"]).join("  ")}
+ else if(base==="cd"){let p=args[0]||"~";if(p===".."){if(simCwd==="~")r="";else simCwd=simCwd.includes("/")?simCwd.substring(0,simCwd.lastIndexOf("/"))||"/":"~"}else if(p==="~")simCwd="~";else if(p.startsWith("/")){if(fakeFS[p])simCwd=p;else r=`bash: cd: ${p}: No such directory`}else{let candidate=(simCwd==="~"?"/home/student":simCwd)+"/"+p;if(fakeFS[candidate])simCwd=candidate;else r=`bash: cd: ${p}: No such directory`}}
+ else if(base==="whoami")r="student";
+ else if(base==="hostname")r="ubuntu-lab";
+ else if(base==="date")r=new Date().toString();
+ else if(base==="echo")r=raw.replace(/^echo\s*/,"").replace(/^["']|["']$/g,"");
+ else if(base==="uname")r="Linux ubuntu-lab 6.x-generic #1 SMP x86_64 GNU/Linux";
+ else if(base==="cat"){const f=args[0];if(f==="notes.txt")r="Welcome to Ubuntu Linux Master!\nPractice every day.";else if(f==="/etc/hostname")r="ubuntu-lab";else r=`cat: ${f||""}: simulated file not found`}
+ else if(base==="clear"){out.innerHTML="";return}
+ else if(base==="history")r="  1  help\n  2  pwd\n  3  ls -la";
+ else if(base==="man"){const c=args[0];const found=commands.find(x=>x[0]===c);r=found?`${c} — ${found[1]}\n\nThis learning simulator provides a short explanation.\nUse the real Ubuntu command 'man ${c}' on a Linux system for full documentation.`:`No manual entry for ${c}`}
+ else if(base==="apt")r="apt is simulated here.\nTry: apt search curl\nIn real Ubuntu, package changes may require sudo.";
+ else if(["sudo","rm","chmod","chown","kill","mount","umount","systemctl","reboot","shutdown","dd","mkfs"].includes(base))r=`[SIMULATOR] ${base} was not executed on your real computer.\nThis lab intentionally does not perform privileged or destructive operations.`;
+ else r=`bash: ${base}: command not found in simulator\nType "help" for available commands.`;
+ out.innerHTML+=`<div><span style="color:#66e36d">student@ubuntu:${simCwd}$</span> ${escapeHtml(raw)}\n${escapeHtml(r)}\n</div>`;
+ out.scrollTop=out.scrollHeight;
+}
+function bindTerminal(inputId,outId){
+ const inp=document.getElementById(inputId),out=document.getElementById(outId);
+ inp.addEventListener("keydown",e=>{if(e.key==="Enter"){terminalRun(inp.value,out);inp.value=""}});
+}
+bindTerminal("termInput","termOutput");bindTerminal("quickInput","quickOutput");
+
+function newQuiz(){
+ currentQuiz=Math.floor(Math.random()*quizBank.length);const q=quizBank[currentQuiz];
+ document.getElementById("quizQuestion").textContent=q[0];
+ const a=document.getElementById("quizAnswers");a.innerHTML="";document.getElementById("quizFeedback").textContent="";
+ q[1].forEach((x,i)=>{let b=document.createElement("button");b.className="answer";b.textContent=x;b.onclick=()=>answerQuiz(i,b);a.appendChild(b)});
+}
+function answerQuiz(i,btn){
+ const q=quizBank[currentQuiz];document.querySelectorAll(".answer").forEach(b=>b.disabled=true);
+ if(i===q[2]){btn.classList.add("correct");document.getElementById("quizFeedback").textContent="Correct! +10 XP 🎉";state.xp+=10;save()}else{btn.classList.add("wrong");document.querySelectorAll(".answer")[q[2]].classList.add("correct");document.getElementById("quizFeedback").textContent="Not quite. The correct answer is highlighted."}
+}
+
+document.getElementById("searchInput").addEventListener("input",e=>{
+ const q=e.target.value.trim();
+ if(q){
+   const commandMatches=commands.filter(c=>(c[0]+" "+c[1]+" "+(c[2]||"")).toLowerCase().includes(q.toLowerCase())).length;
+   const symbolMatches=shellSymbols.filter(c=>(c[0]+" "+c[1]+" "+c[2]+" "+c[3]).toLowerCase().includes(q.toLowerCase())).length;
+   if(symbolMatches>0 && commandMatches===0){showSection("symbols");renderSymbols(q)}else{showSection("commands");renderCommands(q)}
+ }else renderCommands();
+});
+document.addEventListener("keydown",e=>{
+ if(e.key==="/" && document.activeElement.tagName!=="INPUT"){e.preventDefault();document.getElementById("searchInput").focus()}
+ if(e.key==="Escape")closeModal();
+});
+document.getElementById("menuBtn").onclick=()=>document.getElementById("sidebar").classList.toggle("open");
+document.getElementById("lessonModal").addEventListener("click",e=>{if(e.target.id==="lessonModal")closeModal()});
+document.getElementById("resetBtn").onclick=()=>{
+ if(confirm("Reset all lesson progress and XP?")){state={completed:[],xp:0};save();renderLevels();renderLessons();toast("Progress reset")}
+};
+
+renderLevels();renderLessons();renderCommands();renderSymbols();renderPopular();renderCheat();renderTips();updateProgress();
+
+const labSymbols = [
+ [";","Do this, then that",'echo "Hello"; echo "Welcome to Linux"'],
+ ["&&","Continue only if successful","mkdir test && cd test"],
+ ["~","Home directory","cd ~/linux-lab"],
+ ["*","Match many characters","ls *.txt"],
+ ["?","Match one character","ls a?.txt"],
+ ["{}","Create multiple names","touch file{1,2,3}.txt"],
+ ["[]","Choose characters","ls file[1-3].txt"],
+ ["#","Comment / note",'echo "Hello" # Linux ignores this comment'],
+ ["\\","Escape a special character","echo \\$HOME"]
+];
+const labExamples = [
+ ["1. ; — Do This, Then That","Run the first command, then the next command.","echo \"Hello\"; echo \"Welcome to Linux\""],
+ ["2. && — Continue Only If Successful","The second command runs only when the first command succeeds.","mkdir test && cd test"],
+ ["3. ~ — Home Directory","~ represents your home directory, such as /home/student.","echo \"Hello\" > ~/hello.txt"],
+ ["4. * — Match Many Characters","*.txt matches names ending in .txt.","ls *.txt"],
+ ["5. ? — Match One Character","? matches exactly one character.","ls a?.txt"],
+ ["6. {} — Create Multiple Names","Brace expansion lets you create several names with one command.","touch file{1,2,3}.txt"],
+ ["7. [] — Choose Characters","Bracket matching selects one character from a set or range.","ls file[1-3].txt"],
+ ["8. # — Comment","A # begins a comment in a shell command.","# This is a note"],
+ ["9. \\ — Escape","A backslash makes the next special character literal.","echo \\$HOME"]
+];
+const labQuestions = [
+ {q:"Create web, network, linux, and security using one command.",hint:"mkdir {____}",answers:["mkdir {web,network,linux,security}","mkdir {web,network,linux,security}"]},
+ {q:"Create week1.txt through week4.txt using one command.",hint:"touch week{____}.txt",answers:["touch week{1,2,3,4}.txt"]},
+ {q:"Show only .txt files.",hint:"Use a wildcard pattern.",answers:["ls *.txt"]},
+ {q:"Show only week1.txt and week2.txt.",hint:"Use [] character selection.",answers:["ls week[12].txt"]},
+ {q:"Create a directory and enter it only if creation succeeds.",hint:"Use &&.",answers:["mkdir backup && cd backup"]}
+];
+function renderLab(){
+ const sym=document.getElementById("labSymbols"); if(!sym)return;
+ sym.innerHTML="";
+ labSymbols.forEach(x=>{let d=document.createElement("div");d.className="symbol-card";d.innerHTML=`<code>${escapeHtml(x[0])}</code><b>${escapeHtml(x[1])}</b><small>${escapeHtml(x[2])}</small>`;sym.appendChild(d)});
+ const ex=document.getElementById("labExamples");ex.innerHTML="";
+ labExamples.forEach(x=>{let d=document.createElement("div");d.className="card lesson";d.innerHTML=`<div><h4>${escapeHtml(x[0])}</h4><p>${escapeHtml(x[1])}</p><code style="color:var(--green)">$ ${escapeHtml(x[2])}</code></div>`;ex.appendChild(d)});
+ const list=document.getElementById("labExercises");list.innerHTML="";
+ labQuestions.forEach((x,i)=>{let d=document.createElement("div");d.className="card exercise";d.innerHTML=`<h4>${i+1}. ${escapeHtml(x.q)}</h4><p>Hint: <code>${escapeHtml(x.hint)}</code></p><input id="labAnswer${i}" placeholder="Type your command here..." autocomplete="off"><div class="check-result" id="labResult${i}"></div>`;list.appendChild(d)});
+ updateLabScore();
+}
+function normalizeCmd(v){return v.trim().replace(/\s+/g," ").replace(/['"]/g,'"').toLowerCase()}
+function updateLabScore(){
+ let score=0;labQuestions.forEach((x,i)=>{if(state.lab2 && state.lab2.includes(i))score++});
+ document.getElementById("labScore").textContent=score+" / 5";
+ if(score===5)document.getElementById("certificateSection").style.display="block";
+}
+function checkLab(){
+ if(!state.lab2)state.lab2=[];
+ let gained=0;
+ labQuestions.forEach((x,i)=>{
+   const val=normalizeCmd(document.getElementById("labAnswer"+i).value);
+   const ok=x.answers.some(a=>normalizeCmd(a)===val);
+   const r=document.getElementById("labResult"+i);
+   if(ok){if(!state.lab2.includes(i)){state.lab2.push(i);state.xp+=20;gained+=20}r.className="check-result correct-text";r.textContent="✓ Correct";}
+   else{r.className="check-result wrong-text";r.textContent="✗ Not correct yet — review the hint and try again."}
+ });
+ save();updateLabScore();renderLevels();renderLessons();
+ if(gained)toast("Lab 2: +"+gained+" XP");
+ if(state.lab2.length===5){document.getElementById("certificateSection").style.display="block";toast("🏆 Lab 2 completed — Certificate unlocked!")}
+}
+document.getElementById("checkLabBtn")?.addEventListener("click",checkLab);
+renderLab();
+if(state.lab2 && state.lab2.length===5)document.getElementById("certificateSection").style.display="block";
+
+/* Mission Labs — Levels 1–6. */
+const LEVEL5_QUESTIONS = [{"q": "Which line correctly tells Linux to run a script using Bash?", "o": ["#!/bin/bash", "#!/usr/bin/bash()", "#!/bin/bash.sh", "bash #!/"], "a": 0, "e": "The shebang selects the Bash interpreter."}, {"q": "Which command runs script.sh with Bash without changing permissions?", "o": ["bash script.sh", "./script.sh", "run script.sh", "execute script.sh"], "a": 0, "e": "`bash script.sh` explicitly runs Bash."}, {"q": "What does `chmod +x backup.sh` do?", "o": ["Adds execute permission", "Encrypts it", "Runs it", "Creates a backup"], "a": 0, "e": "`+x` adds execute permission."}, {"q": "What is a `#` comment used for?", "o": ["Documentation", "Printing text", "Creating variables", "Stopping scripts"], "a": 0, "e": "Comments document code and are ignored by Bash."}, {"q": "Which command prints text?", "o": ["echo", "print", "output", "show"], "a": 0, "e": "`echo` displays text."}, {"q": "Correct assignment for text with spaces?", "o": ["TITLE=\"My Linux Lab\"", "$TITLE=\"My Linux Lab\"", "TITLE = \"My Linux Lab\"", "set TITLE"], "a": 0, "e": "No `$` or spaces around `=` during assignment."}, {"q": "What does `$HOME` expand to?", "o": ["Home directory", "Word HOME", "Root only", "Script name"], "a": 0, "e": "It is the user's home directory."}, {"q": "Why use `\"$FILE\"`?", "o": ["Protects spaces while expanding", "Makes global", "Encrypts", "Prevents expansion"], "a": 0, "e": "Quotes preserve one argument."}, {"q": "Difference between `'$HOME'` and `\"$HOME\"`?", "o": ["Single literal, double expands", "Identical", "Double prevents expansion", "Single executes"], "a": 0, "e": "Single quotes are literal; double quotes expand variables."}, {"q": "Which reads input into `name`?", "o": ["read name", "input name", "scan name", "get name"], "a": 0, "e": "`read` stores input in a variable."}, {"q": "What is `$1`?", "o": ["First argument", "First line", "PID", "First error"], "a": 0, "e": "First positional argument."}, {"q": "Run `./check.sh server.conf`; `$1` is?", "o": ["server.conf", "./check.sh", "check", "Current directory"], "a": 0, "e": "First supplied argument."}, {"q": "Which gives number of arguments?", "o": ["$#", "$?", "$$", "$@"], "a": 0, "e": "`$#` counts positional arguments."}, {"q": "Which usually contains script name?", "o": ["$0", "$1", "$#", "$?"], "a": 0, "e": "`$0` is the invocation name."}, {"q": "Best way to forward all arguments preserving spaces?", "o": ["\"$@\"", "$#", "$?", "$$"], "a": 0, "e": "`\"$@\"` preserves argument boundaries."}, {"q": "What does `$?` contain?", "o": ["Last exit status", "Script name", "Username", "All output"], "a": 0, "e": "Status of the previous command."}, {"q": "Which status means success?", "o": ["0", "1", "-1", "100"], "a": 0, "e": "0 means success."}, {"q": "Correct Bash `if` syntax?", "o": ["if [ -f \"$FILE\" ]; then", "if (-f \"$FILE\")", "if {{ -f \"$FILE\" }}", "if -f \"$FILE\" then"], "a": 0, "e": "Use `if [ condition ]; then`."}, {"q": "What does `-f` test?", "o": ["Regular file", "Directory", "Empty file", "Executable"], "a": 0, "e": "Existing regular file."}, {"q": "What does `-d /var/log` test?", "o": ["Directory", "Device", "Deleted", "Writable"], "a": 0, "e": "`-d` tests directories."}, {"q": "String equality operator?", "o": ["=", "-eq", "-gt", "-f"], "a": 0, "e": "`=` compares strings in `[ ... ]`."}, {"q": "Numeric equality operator?", "o": ["-eq", "=", "-e", "-same"], "a": 0, "e": "`-eq` compares integers."}, {"q": "What does `-gt` mean?", "o": ["Greater than", "String", "Equal", "File"], "a": 0, "e": "Integer greater-than."}, {"q": "Why spaces in `[ -f file ]`?", "o": ["Test arguments need separation", "Style only", "Speed", "Auto inserted"], "a": 0, "e": "`[` is a command with arguments."}, {"q": "Purpose of `else`?", "o": ["Alternative when false", "Repeat forever", "End script", "Function"], "a": 0, "e": "Alternative branch."}, {"q": "When use `elif`?", "o": ["More conditions", "Create loop", "Read input", "Redirect errors"], "a": 0, "e": "Additional conditional case."}, {"q": "What does `-z \"$x\"` test?", "o": ["Empty string", "File", "Directory", "Executable"], "a": 0, "e": "True when string length is zero."}, {"q": "Purpose of `for`?", "o": ["Repeat for values", "One variable", "Automatic errors", "Permissions"], "a": 0, "e": "Iterates through values."}, {"q": "Output of `for n in 1 2 3; do echo $n; done`?", "o": ["1, 2, 3", "123 only", "0,1,2", "Error"], "a": 0, "e": "One iteration per value."}, {"q": "Which repeats while condition is true?", "o": ["while", "case", "if", "function"], "a": 0, "e": "`while` loops while true."}, {"q": "Risk of `while true; do ...; done`?", "o": ["Infinite loop", "Deletes files", "Exits", "Runs once"], "a": 0, "e": "Condition never becomes false."}, {"q": "Which skips current iteration?", "o": ["continue", "break", "exit", "return"], "a": 0, "e": "Moves to next iteration."}, {"q": "Which exits a loop?", "o": ["break", "continue", "next", "stop"], "a": 0, "e": "Leaves nearest loop."}, {"q": "Appropriate processing for `.log` files?", "o": ["for f in *.log; do echo \"$f\"; done", "if *.log", "while *.log", "case *.log"], "a": 0, "e": "`for` can iterate over glob results."}, {"q": "Best structure for start/stop/restart menu?", "o": ["case", "while", "test", "tee"], "a": 0, "e": "`case` matches choices."}, {"q": "What ends a normal `case` branch?", "o": [";;", "done", "fi", "esac"], "a": 0, "e": "`;;` ends a branch."}, {"q": "Main benefit of functions?", "o": ["Reuse commands", "Always faster", "Remove variables", "Remove permissions"], "a": 0, "e": "Functions package reusable logic."}, {"q": "Valid function?", "o": ["backup() { echo \"Backup\"; }", "def backup()", "backup => echo", "function = backup"], "a": 0, "e": "Standard Bash function syntax."}, {"q": "How call function `backup`?", "o": ["backup", "backup()", "call backup", "run backup"], "a": 0, "e": "Use its name as a command."}, {"q": "Which performs arithmetic?", "o": ["$((a + b))", "$(a + b)", "{{a+b}}", "[a+b]"], "a": 0, "e": "Arithmetic expansion."}, {"q": "Result of `$((7 * 3))`?", "o": ["21", "7 * 3", "73", "Error"], "a": 0, "e": "It evaluates arithmetic."}, {"q": "What does `$(date)` do?", "o": ["Substitutes command output", "Creates variable", "Compares dates", "Background only"], "a": 0, "e": "Command substitution."}, {"q": "Good command substitution?", "o": ["TODAY=$(date +%F)", "TODAY=date +%F", "TODAY=$[date]", "TODAY=>date"], "a": 0, "e": "Captures stdout."}, {"q": "What does `>` do?", "o": ["Overwrite stdout file", "Append", "stderr only", "Background"], "a": 0, "e": "Redirects stdout and overwrites."}, {"q": "What does `>>` do?", "o": ["Append stdout", "Delete file", "stderr only", "Pipe"], "a": 0, "e": "Appends output."}, {"q": "What does `2>` redirect?", "o": ["stderr", "stdin", "second argument", "both"], "a": 0, "e": "FD 2 is stderr."}, {"q": "Meaning of `> out.log 2>&1`?", "o": ["stdout and stderr to log", "Runs twice", "Errors on screen", "Two logs"], "a": 0, "e": "Both streams go to the same file."}, {"q": "What does `|` do?", "o": ["stdout to next stdin", "Parallel commands", "Variable", "Permission"], "a": 0, "e": "Creates a pipeline."}, {"q": "Best count of ERROR lines?", "o": ["grep 'ERROR' server.log | wc -l", "cat ERROR > server.log", "wc ERROR server.log", "ERROR | grep"], "a": 0, "e": "Filter then count."}, {"q": "Safest for filename with spaces in `$1`?", "o": ["cat \"$1\"", "cat $1", "cat '$1'", "cat $$1"], "a": 0, "e": "Quote positional parameters."}];
+const MISSION_DATA = {"1": {"title": "Linux Basics", "icon": "🐧", "desc": "Navigate the filesystem, create files, inspect content and use essential terminal commands.", "pass": 70, "qs": [["Which command shows your current directory?", ["pwd", "cd", "where", "dir"], 0], ["Which command lists files?", ["ls", "show", "files", "list"], 0], ["Which command changes directory?", ["cd", "mv", "go", "chdir"], 0], ["Which command creates a directory?", ["mkdir", "mkfile", "newdir", "folder"], 0], ["Which command creates an empty file?", ["touch", "make", "file", "new"], 0], ["Which command copies a file?", ["cp", "copyfile", "mv", "dup"], 0], ["Which command renames or moves a file?", ["mv", "renameonly", "cp", "shift"], 0], ["Which command prints text to the terminal?", ["echo", "say", "printscreen", "showtext"], 0], ["Which command reads a manual page?", ["man", "helpme", "doc", "guide"], 0], ["Which symbol means the parent directory?", ["..", "~", "/", "-"], 0]]}, "2": {"title": "Special Characters & Operators", "icon": "⚙️", "desc": "Master shell operators, wildcards, comments, escaping and command chaining.", "pass": 70, "qs": [["What does ; do between commands?", ["Runs the next command regardless of the previous result", "Runs only after success", "Runs in background", "Creates a comment"], 0], ["What does && mean?", ["Run the next command only if the previous succeeds", "Run both in parallel", "Redirect errors", "Repeat forever"], 0], ["What does ~ normally represent?", ["The current user home directory", "The root filesystem", "The previous command", "A wildcard"], 0], ["What does * match in a pathname pattern?", ["Zero or more characters", "Exactly one character", "Only numbers", "Only directories"], 0], ["What does ? usually match in a glob?", ["Exactly one character", "Any number of characters", "A directory only", "A command"], 0], ["What does file{1,2,3}.txt expand to?", ["file1.txt file2.txt file3.txt", "One file named file123.txt", "Only file1.txt", "An error"], 0], ["What does # start in a normal Bash command line?", ["A comment", "A variable", "A pipeline", "A wildcard"], 0], ["What does a backslash \\ commonly do?", ["Escapes the special meaning of the next character", "Starts a loop", "Redirects stdout", "Runs as root"], 0], ["Which operator pipes stdout to another command?", ["|", ">", "&&", ";"], 0], ["Which operator appends stdout to a file?", [">>", ">", "2>", "<"], 0]]}, "3": {"title": "File & Text Processing", "icon": "📄", "desc": "Search, filter, transform, compare and process text from files and command output.", "pass": 70, "qs": [["Which command searches text for a pattern?", ["grep", "find", "seek", "scan"], 0], ["Which command searches for files by conditions?", ["find", "grep", "locate-text", "where"], 0], ["Which command shows the first lines of a file?", ["head", "top", "first", "start"], 0], ["Which command follows new lines added to a file?", ["tail -f", "head -f", "watchfile", "follow"], 0], ["Which command counts lines, words and bytes?", ["wc", "count", "stat", "sum"], 0], ["Which command sorts lines?", ["sort", "order", "arrange", "line-sort"], 0], ["Which command removes adjacent duplicate lines?", ["uniq", "dedupe-all", "unique", "remove"], 0], ["Which command extracts selected fields?", ["cut", "slice", "field", "pick"], 0], ["Which command can substitute text using patterns?", ["sed", "replace", "editpipe", "subst"], 0], ["Which command is commonly used for column-based text processing?", ["awk", "col", "table", "fields"], 0]]}, "4": {"title": "Linux Administration", "icon": "🛠️", "desc": "Work with users, permissions, processes, services, packages, storage and system information.", "pass": 70, "qs": [["Which command changes file permissions?", ["chmod", "chperm", "permset", "access"], 0], ["Which command changes file ownership?", ["chown", "owner", "own", "chmod"], 0], ["Which command shows running processes?", ["ps", "proc", "jobsall", "runlist"], 0], ["Which command sends a signal to a process ID?", ["kill", "stopid", "signal", "terminateid"], 0], ["Which command manages systemd services?", ["systemctl", "servicectl", "systemd-runner", "unit"], 0], ["Which command queries systemd logs?", ["journalctl", "syslog", "logsctl", "logread"], 0], ["Which command refreshes Ubuntu package indexes?", ["apt update", "apt refresh", "apt sync", "apt index"], 0], ["Which command shows filesystem free space?", ["df -h", "du -h", "free -d", "space"], 0], ["Which command lists block devices?", ["lsblk", "blklist", "diskls", "devices"], 0], ["Which command shows kernel/system information?", ["uname -a", "kernel", "sysinfo", "aboutlinux"], 0]]}, "6": {"title": "Advanced Linux", "icon": "🚀", "desc": "Apply networking, SSH, automation, diagnostics and advanced shell reasoning.", "pass": 70, "qs": [["Which command securely connects to a remote host?", ["ssh", "remote", "connect", "telnet-safe"], 0], ["Which command copies files over SSH?", ["scp", "sshcp", "remote-copy", "cp-ssh"], 0], ["Which command efficiently synchronizes directories?", ["rsync", "syncdir", "mirror", "copy-sync"], 0], ["Which command inspects listening sockets and ports?", ["ss", "ports", "listen", "netstat-file"], 0], ["Which command queries DNS records?", ["dig", "dnsget", "resolve", "domain"], 0], ["Which command displays IP addresses and interfaces?", ["ip addr", "ifshow", "netaddr", "ipconfig-linux"], 0], ["Which syntax runs a command in the background?", ["command &", "bg command", "background command", "run&"], 0], ["Which syntax captures command output into a variable?", ["VAR=$(command)", "VAR=command()", "VAR=>command", "VAR|command"], 0], ["Which syntax performs integer arithmetic in Bash?", ["$((a+b))", "$(a+b)", "{a+b}", "[a+b]"], 0], ["Which command schedules recurring jobs for a user?", ["crontab", "cronrun", "schedule", "jobs -r"], 0]]}};
+MISSION_DATA[5]={title:'Basic Bash Scripting & Logic',icon:'📜',desc:'50-question mission based on the uploaded Level 5 Basic Bash Scripting exercise and certificate format.',pass:80,qs:LEVEL5_QUESTIONS.map(x=>[x.q,x.o,x.a])};
+let missionLevel=0,missionIndex=0,missionAnswers=[],missionStarted=0;
+function shuffleMission(raw){const a=raw[1].map((text,i)=>({text,correct:i===raw[2]}));for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return [raw[0],a];}
+function missionKey(n){return 'level'+n;}
+function missionStore(){return JSON.parse(localStorage.getItem('linuxMissionAttempts')||'{}');}
+function missionQuestions(n){const all=missionStore(),key=missionKey(n);if(all[key]?.questions)return all[key].questions;const qs=MISSION_DATA[n].qs.map(shuffleMission);all[key]={questions:qs,answers:Array(qs.length).fill(null),completed:false};localStorage.setItem('linuxMissionAttempts',JSON.stringify(all));return qs;}
+function missionState(n){return missionStore()[missionKey(n)]||null;}
+function renderMissionCards(){const el=document.getElementById('missionCards');if(!el)return;el.innerHTML=Array.from({length:6},(_,i)=>i+1).map(n=>{const d=MISSION_DATA[n],st=missionState(n),done=!!st?.completed,locked=n>1&&!missionState(n-1)?.completed;return `<div class="mission-card ${locked?'locked':''}"><div class="mc-icon">${d.icon}</div><h3>Level ${n} — ${d.title}</h3><p>${d.desc}</p><div class="mc-meta"><span class="mc-pill">📝 ${d.qs.length} Questions</span><span class="mc-pill">🏆 100 Points</span><span class="mc-pill">${done?'✅ Completed':locked?'🔒 Locked':'🟢 Ready'}</span></div>${locked?'<div class="mission-locked-note">Complete the previous level to unlock this mission.</div>':`<button class="btn primary" onclick="startMission(${n})">${done?'Review Mission':'Start Mission'} →</button>`}</div>`}).join('');}
+function startMission(n){if(n>1&&!missionState(n-1)?.completed){toast('🔒 Complete Level '+(n-1)+' first.');return;}missionLevel=n;const qs=missionQuestions(n),st=missionState(n);missionAnswers=st?.answers?st.answers.slice():Array(qs.length).fill(null);missionIndex=0;missionStarted=Date.now();document.getElementById('missionRunner').style.display='block';renderMission();document.getElementById('missionRunner').scrollIntoView({behavior:'smooth'});}
+function renderMission(){const d=MISSION_DATA[missionLevel],qs=missionQuestions(missionLevel),q=qs[missionIndex],chosen=missionAnswers[missionIndex],correct=missionAnswers.reduce((n,a,i)=>n+(a!==null&&qs[i][1][a]?.correct?1:0),0),pts=missionLevel===5?correct*2:correct*10;document.getElementById('missionRunner').innerHTML=`<div class="mission-run"><div class="mr-head"><div><b>${d.icon} LEVEL ${missionLevel} — ${d.title}</b><div>Question ${missionIndex+1} / ${qs.length} • Score ${pts} / 100</div></div><button class="btn" onclick="closeMission()">✕ Close</button></div><div class="mr-progress"><span style="width:${((missionIndex+1)/qs.length)*100}%"></span></div><div class="mr-question">${escapeHtml(q[0])}</div><div class="mr-options">${q[1].map((o,i)=>{let c='mr-option';if(chosen!==null){c+=' locked';if(i===chosen)c+=' selected';if(o.correct)c+=' correct';if(i===chosen&&!o.correct)c+=' wrong';}return `<div class="${c}" onclick="pickMission(${i})"><span class="mr-letter">${String.fromCharCode(65+i)}.</span><span>${escapeHtml(o.text)}</span></div>`}).join('')}</div>${chosen!==null?`<div class="mr-feedback ${q[1][chosen].correct?'mr-ok':'mr-bad'}"><b>${q[1][chosen].correct?'✓ Correct':'✗ Incorrect'}</b> — Correct answer: ${escapeHtml(q[1].find(o=>o.correct).text)}</div><div class="mission-locked-note">🔒 This answer is locked and cannot be changed.</div>`:''}<div class="mr-actions"><button class="btn" onclick="missionPrev()">← Previous</button><button class="btn primary" onclick="missionNext()">${missionIndex===qs.length-1?'Finish Mission 🏁':'Next →'}</button></div></div>`;}
+function pickMission(i){if(missionAnswers[missionIndex]!==null){toast('🔒 This answer is already locked.');return;}missionAnswers[missionIndex]=i;const all=missionStore();all[missionKey(missionLevel)].answers=missionAnswers;localStorage.setItem('linuxMissionAttempts',JSON.stringify(all));renderMission();}
+function missionPrev(){if(missionIndex>0){missionIndex--;renderMission();}}
+function missionNext(){if(missionAnswers[missionIndex]===null){toast('Please select an answer. The selection will be locked.');return;}const qs=missionQuestions(missionLevel);if(missionIndex<qs.length-1){missionIndex++;renderMission();}else finishMission();}
+function finishMission(){const d=MISSION_DATA[missionLevel],qs=missionQuestions(missionLevel);let correct=0;missionAnswers.forEach((a,i)=>{if(a!==null&&qs[i][1][a]?.correct)correct++;});const points=missionLevel===5?correct*2:correct*10,total=100,pass=points>=d.pass,all=missionStore(),key=missionKey(missionLevel);all[key]={questions:qs,answers:missionAnswers,completed:true,score:points,correct};localStorage.setItem('linuxMissionAttempts',JSON.stringify(all));const ls=JSON.parse(localStorage.getItem('linuxMasterState')||'{"completed":[],"xp":0}');ls.missions=ls.missions||{};if(!ls.missions[key]){ls.missions[key]={score:points,correct};ls.xp=(ls.xp||0)+points;localStorage.setItem('linuxMasterState',JSON.stringify(ls));if(typeof updateProgress==='function')updateProgress();}const secs=Math.floor((Date.now()-missionStarted)/1000),time=`${String(Math.floor(secs/60)).padStart(2,'0')}:${String(secs%60).padStart(2,'0')}`;document.getElementById('missionRunner').innerHTML=`<div class="mission-run mr-result"><div class="mc-icon">${pass?'🏆':'📘'}</div><h2>Level ${missionLevel} Mission Complete</h2><div class="mr-score">${points} / ${total}</div><p>Correct: <b>${correct} / ${qs.length}</b> • Incorrect: <b>${qs.length-correct}</b> • Time: <b>${time}</b></p><p>${pass?'Congratulations! You passed this mission.':'Your result is recorded. Review the lessons and improve your score on a new attempt.'}</p><div class="cert-mini"><div>🐧 LINUX COMMAND-LINE MISSION</div><h2>CERTIFICATE OF ACHIEVEMENT</h2><div>LEVEL ${missionLevel} — ${d.title}</div><div class="big">${points} / ${total}</div><div>Correct ${correct} • Incorrect ${qs.length-correct} • ${new Date().toLocaleDateString()}</div><p><b>SNAC Program</b></p></div><div class="mr-actions"><button class="btn" onclick="closeMission()">← Mission List</button><button class="btn primary" onclick="printMissionCertificate()">🖨 Print Certificate</button></div></div>`;renderMissionCards();}
+function closeMission(){document.getElementById('missionRunner').style.display='none';renderMissionCards();}
+function printMissionCertificate(){document.body.classList.add('mission-print');window.print();setTimeout(()=>document.body.classList.remove('mission-print'),500);}
+renderMissionCards();
+</script>
+</body>
+</html>
